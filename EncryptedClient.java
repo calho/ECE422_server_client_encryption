@@ -4,6 +4,7 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -23,6 +24,7 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Base64.Encoder;
+import java.util.Scanner;
 
 import javax.crypto.KeyAgreement;
 import javax.crypto.KeyGenerator;
@@ -36,19 +38,69 @@ public class EncryptedClient {
 	static Socket socket;
 	static ObjectOutputStream out;
 	static ObjectInputStream in;
+	static MyEncrypt encrypter = new MyEncrypt();
+	static MyDecrypt decrypter = new MyDecrypt();
 	
-	private static BigInteger g = new BigInteger("5", 16);
+	public static int[] encryptString(String string, int[] k) throws UnsupportedEncodingException{
+		int paddingNeeded = (8-string.length()%8);
+	    System.out.println("test length: " + string.length() + " padding needed: " + paddingNeeded);
+	    for (int i = 0; i < paddingNeeded; i++) {
+	    	string = string + "\0";
+	    }
+	    
+	    byte[] messagebyte = string.getBytes("UTF-8");
+	    System.out.println("message as bytes: " + messagebyte + " with size: " + messagebyte.length);
+	    
+	    IntBuffer intBuf =
+	    		   ByteBuffer.wrap(messagebyte)
+	    		     .order(ByteOrder.BIG_ENDIAN)
+	    		     .asIntBuffer();
+	    		 int[] v = new int[intBuf.remaining()];
+	    		 intBuf.get(v);
+	    		 
+	    System.out.println("message as int[]: " + Arrays.toString(v));
 
-	private static BigInteger p = new BigInteger("23", 16);
+	    		 
+		 for (int i = 0; i<v.length-1; i+=2) {
+    	    	int[] encryptedv = new int[2];
+    	    	encryptedv[0] = v[i];
+    	    	encryptedv[1] = v[i+1];
+    	    	encrypter.encrypt(encryptedv, k);
+    	    	System.out.println("encryptedv after encrypt: " + Arrays.toString(encryptedv));
+    	    	v[i] = encryptedv[0];
+    	    	v[i+1] = encryptedv[1];
+    	    }
+		 return v;
+	}
 	
-    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidKeyException, ClassNotFoundException {
+	public static String decryptintarr(int[] v, int[] k) throws UnsupportedEncodingException {
+		for (int i = 0; i<v.length-1; i+=2) {
+	    	int[] decryptedv = new int[2];
+	    	decryptedv[0] = v[i];
+	    	decryptedv[1] = v[i+1];
+	    	decrypter.decrypt(decryptedv, k);
+	    	v[i] = decryptedv[0];
+	    	v[i+1] = decryptedv[1];
+	    }
+		
+		ByteBuffer byteBuf = ByteBuffer.allocate((v.length)*4);
+	    IntBuffer intBuf = byteBuf.asIntBuffer();
+	    intBuf.put(v);
+	    
+	    byte[] messagebyte = byteBuf.array();
+	    
+	    String string = new String(messagebyte, "UTF-8");
+	    
+	    return string;
+	}
+	
+    @SuppressWarnings("resource")
+	public static void main(String[] args) throws IOException, NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidKeyException, ClassNotFoundException {
 
-    	MyEncrypt encrypter = new MyEncrypt();
     	System.loadLibrary("encrypt");
-    	MyDecrypt decrypter = new MyDecrypt();
     	System.loadLibrary("decrypt");
     	
-    	String test = "Hello World";
+//    	String test = "Hello World!";
     	
     	
     	
@@ -66,11 +118,11 @@ public class EncryptedClient {
 			    PrivateKey privateKey  = keyPair.getPrivate();
 			    PublicKey publicKey = keyPair.getPublic();
 			    
-			    System.out.println("sending my public key: " + publicKey);
+//			    System.out.println("sending my public key: " + publicKey);
 			    out.writeObject(publicKey);
 	            out.flush();
 	            PublicKey serverPublickey = (PublicKey)in.readObject();
-	    	    System.out.println("got public key: " + serverPublickey);
+//	    	    System.out.println("got public key: " + serverPublickey);
 	    	    
 	    	    KeyAgreement keyAgreement = KeyAgreement.getInstance("DH");
 	    	    keyAgreement.init(privateKey);
@@ -79,48 +131,36 @@ public class EncryptedClient {
 	    	    System.arraycopy(keyAgreement.generateSecret(), 0, secretKey, 0, secretKey.length);
 	    	    
 	    	    //************************************************************************
+	    	    
+	    	    Scanner reader = new Scanner(System.in);  
+	    	    System.out.print("Username: ");
+	    	    String username = reader.nextLine();
+	    	    
+//	    	    reader = new Scanner(System.in);  
+	    	    System.out.print("Password: ");
+	    	    String password = reader.nextLine();
 
-	    	    int paddingNeeded = test.length()%4;
-	    	    for (int i = 0; i < paddingNeeded; i++) {
-	    	    	test = test + "\0";
-	    	    }
-	    	    
-	    	    byte[] messagebyte = test.getBytes("UTF-8");
-	    	    System.out.println("message as bytes: " + messagebyte + " with size: " + messagebyte.length);
-	    	    
-	    	    
-	    	    
-	    	    IntBuffer intBuf =
-	    	    		   ByteBuffer.wrap(messagebyte)
-	    	    		     .order(ByteOrder.BIG_ENDIAN)
-	    	    		     .asIntBuffer();
-	    	    		 int[] v = new int[intBuf.remaining()];
-	    	    		 intBuf.get(v);
-	    	    		 
-//	    	    int vpaddingNeeded = v.length%2;
-//	    	    for (int i = 0; i < vpaddingNeeded; i++) {
-//	    	    	int[] oldv = v;
-//	    	    	v = new int[oldv.length + 1];
-//	    	    	int[] arrayPad = new int[1];
-//	    	    	arrayPad[0] = 0;
-//	    	    	System.arraycopy(oldv, 0, v, 0, oldv.length);
-//	    	    	System.arraycopy(arrayPad, 0, v, oldv.length, arrayPad.length);
+//	    	    int paddingNeeded = (8-test.length()%8);
+//	    	    System.out.println("test length: " + test.length() + " padding needed: " + paddingNeeded);
+//	    	    for (int i = 0; i < paddingNeeded; i++) {
+//	    	    	test = test + "\0";
 //	    	    }
-	    	    		 
-//	    	    ByteBuffer byteBuf = ByteBuffer.allocate((v.length)*4);
-//	    	    intBuf = byteBuf.asIntBuffer();
-//	    	    intBuf.put(v);
 //	    	    
-//	    	    byte[] messagebyte2 = byteBuf.array();
+//	    	    byte[] messagebyte = test.getBytes("UTF-8");
+//	    	    System.out.println("message as bytes: " + messagebyte + " with size: " + messagebyte.length);
 //	    	    
-//	    	    String test2 = new String(messagebyte2, "UTF-8");
-//	    	    System.out.println("trying to get string back: " + test2); 
-	    	    
-	    	    System.out.println("message as int[]: " + Arrays.toString(v));
+//	    	    IntBuffer intBuf =
+//	    	    		   ByteBuffer.wrap(messagebyte)
+//	    	    		     .order(ByteOrder.BIG_ENDIAN)
+//	    	    		     .asIntBuffer();
+//	    	    		 int[] v = new int[intBuf.remaining()];
+//	    	    		 intBuf.get(v);
+//	    	    		    	    
+//	    	    System.out.println("message as int[]: " + Arrays.toString(v));
 	    	    
 	    	    System.out.println("key as a byte[]: " + secretKey + "with size: " + secretKey.length);
 	    	    
-	    	    intBuf =
+	    	    IntBuffer intBuf =
 	    	    		   ByteBuffer.wrap(secretKey)
 	    	    		     .order(ByteOrder.BIG_ENDIAN)
 	    	    		     .asIntBuffer();
@@ -129,18 +169,35 @@ public class EncryptedClient {
 	    	        
 	    	    System.out.println("key as int[]: " + Arrays.toString(k));
 	    	    
-	    	    for (int i = 0; i<v.length-1; i+=2) {
+//	    	    for (int i = 0; i<v.length-1; i+=2) {
 //	    	    	int[] encryptedv = new int[2];
 //	    	    	encryptedv[0] = v[i];
 //	    	    	encryptedv[1] = v[i+1];
-	    	    	encrypter.encrypt(v, k);
+//	    	    	encrypter.encrypt(encryptedv, k);
 //	    	    	System.out.println("encryptedv after encrypt: " + Arrays.toString(encryptedv));
 //	    	    	v[i] = encryptedv[0];
 //	    	    	v[i+1] = encryptedv[1];
-	    	    }
-//	    	    encrypter.encrypt(v, k);
+//	    	    }
 	    	    
-	    	    System.out.println("v after it was encrypted: " + Arrays.toString(v));
+	    	    int[] intusername = encryptString(username, k);
+	    	    int[] intpassword = encryptString(password, k);
+	    	    
+	    	    sendMessage(intusername);
+	    	    sendMessage(intpassword);
+	    	    
+                int[] ack = (int[])in.readObject();
+                String ackDecrypted = decryptintarr(ack, k).trim();
+                
+                System.out.println("ack recieved was: " + ackDecrypted);
+                
+                System.out.print("Filename: ");
+	    	    String filename = reader.nextLine();
+	    	    
+	    	    int[] intfilename = encryptString(filename, k);
+	    	    sendMessage(intfilename);
+
+	    	    
+//	    	    System.out.println("v after it was encrypted: " + Arrays.toString(v));
 	    	    //************************************************************************
 
 	    	    
@@ -151,84 +208,35 @@ public class EncryptedClient {
 	    	    
 	    	    //************************************************************************
 	    	    
-	    	    for (int i = 0; i<v.length-1; i+=2) {
-	    	    	int[] decryptedv = new int[2];
-	    	    	decryptedv[0] = v[i];
-	    	    	System.out.println("decrypting v0: " + decryptedv[0]);
-	    	    	decryptedv[1] = v[i+1];
-	    	    	System.out.println("decrypting v1: " + decryptedv[1]);
-	    	    	System.out.println("the key being used for decryption: " + Arrays.toString(k));
-	    	    	decrypter.decrypt(decryptedv, k);
-	    	    	v[i] = decryptedv[0];
-	    	    	v[i+1] = decryptedv[1];
-	    	    }
-	    	    
-	    	    System.out.println("v after it was decrypted: " + Arrays.toString(v));
-	    	    
-	    	    ByteBuffer byteBuf = ByteBuffer.allocate((v.length)*4);
-	    	    intBuf = byteBuf.asIntBuffer();
-	    	    intBuf.put(v);
-	    	    
-	    	    byte[] messagebyte2 = byteBuf.array();
-	    	    
-	    	    String test2 = new String(messagebyte2, "UTF-8");
-	    	    System.out.println("trying to get string back with decryption: " + test2);
+//	    	    for (int i = 0; i<v.length-1; i+=2) {
+//	    	    	int[] decryptedv = new int[2];
+//	    	    	decryptedv[0] = v[i];
+//	    	    	System.out.println("decrypting v0: " + decryptedv[0]);
+//	    	    	decryptedv[1] = v[i+1];
+//	    	    	System.out.println("decrypting v1: " + decryptedv[1]);
+//	    	    	System.out.println("the key being used for decryption: " + Arrays.toString(k));
+//	    	    	decrypter.decrypt(decryptedv, k);
+//	    	    	v[i] = decryptedv[0];
+//	    	    	v[i+1] = decryptedv[1];
+//	    	    }
+//	    	    
+////	    	    if (vpaddingNeeded == 1) {
+////	    	    	v[v.length-1] = 0;
+////	    	    }
+//	    	    
+//	    	    System.out.println("v after it was decrypted: " + Arrays.toString(v));
+//	    	    
+//	    	    ByteBuffer byteBuf = ByteBuffer.allocate((v.length)*4);
+//	    	    intBuf = byteBuf.asIntBuffer();
+//	    	    intBuf.put(v);
+//	    	    
+//	    	    byte[] messagebyte2 = byteBuf.array();
+//	    	    
+//	    	    String test2 = new String(messagebyte2, "UTF-8");
+//	    	    System.out.println("trying to get string back with decryption: " + test2);
 	    	    
 	    	    //***************************************************************************
-	    	    
-	    	    
-//			    PublicKey serverPublicKey = 
-			    
-//			    KeyAgreement aKeyAgree = KeyAgreement.getInstance("DH", "BC");
-//			    KeyPair aPair = keyPairGenerator.generateKeyPair();
-//			    KeyAgreement bKeyAgree = KeyAgreement.getInstance("DH", "BC");
-//			    KeyPair bPair = keyPairGenerator.generateKeyPair();
-//			    
-//			    aKeyAgree.init(aPair.getPrivate());
-//			    bKeyAgree.init(bPair.getPrivate());
-//			    
-//			    aKeyAgree.doPhase(bPair.getPublic(), true);
-//			    bKeyAgree.doPhase(aPair.getPublic(), true);
-//
-//			    MessageDigest hash = MessageDigest.getInstance("SHA1", "BC");
-//			    System.out.println("aKeyAgree: " + new String(hash.digest(aKeyAgree.generateSecret())));
-//			    System.out.println("bKeyAgree: " + new String(hash.digest(bKeyAgree.generateSecret())));
-			    
-//			    KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
-//			    keyGenerator.init(128);
-//			    Key key = keyGenerator.generateKey();
-//			    System.out.println(key.toString());
-//			    
-//			    Encoder encoder = Base64.getEncoder();
-//			    test = encoder.encode(test);
-//			    System.out.println("string as 64 bit: " + test.getBytes("UTF-8"));
-//			    byte[]   bytesEncoded = Base64.encodeBase64(test.getBytes());
-//			    System.out.println("encoded value is " + test.getBytes());
-			    
-//			    int[] v = new int[test.length()];
-//			    for (int i = 0; i <test.length(); i++ ) {
-//			    	char c = test.charAt(i);
-//			    	int character = c - 'a' +1;
-//			    	v[i] = character;
-//			    }
-			    
-//			    System.out.println("string as int[]: " + Arrays.toString(v));
-			    
-//			    System.out.println("my key as byte[] is: " + Arrays.toString(key));
-			    
-//			    int[] intKey = new int[key.getEncoded().length];
-//			    for(int i =0; i < key.getEncoded().length; i++) {
-//			    	intKey[i] = key.getEncoded()[i] & 0xff;
-//			    }
-			    
-//			    System.out.println("my key as int[] is: " + Arrays.toString(intKey));
-//			    
-//			    encrypter.encrypt(v, intKey);
-//			    
-//			    System.out.println("v after encryption: " + Arrays.toString(v));
-//			    
-//			    KeyAgreement keyAgreement = KeyAgreement.getInstance("DH");
-			    
+	    	 			    
 			    String message = null;
 			    
 			    sendMessage("Connection successful");
@@ -274,7 +282,7 @@ public class EncryptedClient {
         }
     }
     
-    static void sendMessage(String msg)
+    static void sendMessage(Object msg)
     {
         try{
             out.writeObject(msg);

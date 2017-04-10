@@ -56,7 +56,6 @@ unsigned int delta = 0x9e3779b9, n=32;
 
 	v[0] = y;
 	v[1] = z;
-	printf("v value after encryption %u\n",v[0] );
 	// return v;
 }
 
