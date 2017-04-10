@@ -195,6 +195,29 @@ public class EncryptedClient {
 	    	    
 	    	    int[] intfilename = encryptString(filename, k);
 	    	    sendMessage(intfilename);
+	    	    
+	    	    String fileContent = null;
+	    	    
+	    	    int[] fileContentint = (int[])in.readObject();
+                fileContent = decryptintarr(fileContentint, k).trim();
+                System.out.println("recieved file content: " + fileContent);
+                
+//	    	    do{
+//
+//	                try{
+//	                	System.out.println("trying to read");
+//	                	int[] fileContentint = (int[])in.readObject();
+//	                    fileContent = decryptintarr(fileContentint, k).trim();
+//	                    if (fileContent.equals("file not found")) {
+//	                    	throw new Exception();
+//	                    }
+//	                    System.out.println("recieved file content: " + fileContent);
+//	                }
+//	                catch(Exception e){
+//	                    System.err.println("file was not found");
+//	                    break;
+//	                }
+//	            }while(!fileContent.equals("END") || !fileContent.equals("file not found"));
 
 	    	    
 //	    	    System.out.println("v after it was encrypted: " + Arrays.toString(v));

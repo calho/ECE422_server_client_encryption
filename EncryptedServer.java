@@ -1,4 +1,6 @@
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
@@ -10,6 +12,7 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
+import java.nio.file.Files;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -44,6 +47,31 @@ public class EncryptedServer {
 	    
 	    IntBuffer intBuf =
 	    		   ByteBuffer.wrap(messagebyte)
+	    		     .order(ByteOrder.BIG_ENDIAN)
+	    		     .asIntBuffer();
+	    		 int[] v = new int[intBuf.remaining()];
+	    		 intBuf.get(v);
+	    		 
+	    System.out.println("message as int[]: " + Arrays.toString(v));
+
+	    		 
+		 for (int i = 0; i<v.length-1; i+=2) {
+    	    	int[] encryptedv = new int[2];
+    	    	encryptedv[0] = v[i];
+    	    	encryptedv[1] = v[i+1];
+    	    	encrypter.encrypt(encryptedv, k);
+    	    	v[i] = encryptedv[0];
+    	    	v[i+1] = encryptedv[1];
+    	    }
+		 return v;
+	}
+	
+	public static int[] encryptByte(byte[] bytearr, int[] k) throws UnsupportedEncodingException{
+		
+	    
+	    
+	    IntBuffer intBuf =
+	    		   ByteBuffer.wrap(bytearr)
 	    		     .order(ByteOrder.BIG_ENDIAN)
 	    		     .asIntBuffer();
 	    		 int[] v = new int[intBuf.remaining()];
@@ -262,6 +290,38 @@ public class EncryptedServer {
 	    String filename = decryptintarr(filenameint, k).trim();
 	    
 	    System.out.println("filename with decryption: " + filename);
+	    
+	    try {
+		    File file = new File(filename);
+		    byte[] fileContent = Files.readAllBytes(file.toPath());
+		  	    
+		    String fileContentString = new String(fileContent, "UTF-8");
+		    
+		    sendMessage(encryptString(fileContentString, k));
+	    }
+	    catch (Exception e) {
+	    	System.out.println("error in finding file");
+	    	sendMessage(encryptString("file not found", k));
+	    }
+	    
+//	    try {
+//		    String path = "./"+filename;
+//		    System.out.println("trying to read file: " + path);
+//		    FileInputStream fileInputStream = new FileInputStream(path);
+//		    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream));
+//		    String line;
+//		    while((line = bufferedReader.readLine()) != null) {
+//		    	System.out.println(line);
+//		    	sendMessage(encryptString(line, k));
+//		    }
+//		    sendMessage(encryptString("END", k));
+//		    }
+//	    catch (Exception e) {
+//	    	sendMessage(encryptString("file not found", k));
+//	    	System.out.println("sent file not found error");
+//	    }
+//	    if(file.exists())
+	    
 	    
 //	    out.println("server: hi there");
 	      	    
