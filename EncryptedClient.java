@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.Console;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -149,8 +150,10 @@ public class EncryptedClient {
 		    	    username = reader.nextLine();
 		    	    
 	//	    	    reader = new Scanner(System.in);  
-		    	    System.out.print("Password: ");
-		    	    String password = reader.nextLine();
+//		    	    System.out.print("Password: ");
+//		    	    String password = reader.nextLine();
+		    	    Console console = System.console();
+		    	    String password = new String(console.readPassword("Password: "));
 	
 		    	    
 	//	    	    System.out.println("key as a byte[]: " + secretKey + "with size: " + secretKey.length);
