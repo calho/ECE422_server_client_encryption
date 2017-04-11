@@ -65,32 +65,33 @@ public class EncryptedClient {
 	    		 
 //	    System.out.println("message as int[]: " + Arrays.toString(v));
 
-	    		 
+	    int[] vcopy = new int[v.length];
 		 for (int i = 0; i<v.length-1; i+=2) {
     	    	int[] encryptedv = new int[2];
     	    	encryptedv[0] = v[i];
     	    	encryptedv[1] = v[i+1];
     	    	encrypter.encrypt(encryptedv, k);
 //    	    	System.out.println("encryptedv after encrypt: " + Arrays.toString(encryptedv));
-    	    	v[i] = encryptedv[0];
-    	    	v[i+1] = encryptedv[1];
+    	    	vcopy[i] = encryptedv[0];
+    	    	vcopy[i+1] = encryptedv[1];
     	    }
-		 return v;
+		 return vcopy;
 	}
 	
 	public static String decryptintarr(int[] v, int[] k) throws UnsupportedEncodingException {
+		int[] vcopy = new int[v.length];
 		for (int i = 0; i<v.length-1; i+=2) {
 	    	int[] decryptedv = new int[2];
 	    	decryptedv[0] = v[i];
 	    	decryptedv[1] = v[i+1];
 	    	decrypter.decrypt(decryptedv, k);
-	    	v[i] = decryptedv[0];
-	    	v[i+1] = decryptedv[1];
+	    	vcopy[i] = decryptedv[0];
+	    	vcopy[i+1] = decryptedv[1];
 	    }
 		
-		ByteBuffer byteBuf = ByteBuffer.allocate((v.length)*4);
+		ByteBuffer byteBuf = ByteBuffer.allocate((vcopy.length)*4);
 	    IntBuffer intBuf = byteBuf.asIntBuffer();
-	    intBuf.put(v);
+	    intBuf.put(vcopy);
 	    
 	    byte[] messagebyte = byteBuf.array();
 	    
@@ -276,7 +277,7 @@ public class EncryptedClient {
 	                	if (Files.exists(Paths.get(storedFile))){
 				    		try {
 			//	    			System.out.println("appending to file");
-				      		    Files.write(Paths.get(storedFile), fileContent.getBytes(), StandardOpenOption.APPEND);
+				      		    Files.write(Paths.get(storedFile), fileContent.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
 				      		}catch (IOException e) {
 				      		    System.out.println("failed to write to file to store");
 				      		}
