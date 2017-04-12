@@ -7,7 +7,5 @@ lib_encrypt: lib_encrypt.c
 	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.
 
 lib_decrypt: lib_decrypt.c
-	javac *.java
-	javah MyDecrypt
 	gcc -I${JAVA_HOME}/include -I${JAVA_HOME}/include/linux -shared -fpic -o libdecrypt.so lib_decrypt.c
 	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.
