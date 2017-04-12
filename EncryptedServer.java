@@ -350,7 +350,7 @@ public class EncryptedServer {
 	    				    	sendMessage(ack);
 	    				    }
 	    				    else {
-		    			    	System.out.println("wrong password " + foundPassword);
+//		    			    	System.out.println("wrong password " + foundPassword);
 	    				    	int[] error = encryptString("ERROR", k);
 	    				    	sendMessage(error);
 	    				    }
