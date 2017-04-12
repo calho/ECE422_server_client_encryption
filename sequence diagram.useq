@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sequence-diagram version="1.1.14" icons="true" automaticImage="PNG">  
+  <object id="1" language="java" name="EncryptedServer" project="project2" file="/project2/EncryptedServer.java" 
+    binary="false" label="encryptedServer" type="class" autoSize="true">    
+    <position height="-1" width="-1" x="104" y="0"/>    
+    <execution id="2">      
+      <position height="64" width="0" x="0" y="81"/>    
+    </execution>    
+    <execution id="4">      
+      <position height="16" width="0" x="0" y="113"/>    
+    </execution>    
+    <execution id="5">      
+      <position height="64" width="0" x="0" y="158"/>    
+    </execution>    
+    <execution id="7">      
+      <position height="16" width="0" x="0" y="190"/>    
+    </execution>    
+    <execution id="8">      
+      <position height="48" width="0" x="0" y="250"/>    
+    </execution>  
+  </object>  
+  <object id="11" language="java" name="EncryptedServer.ClientServerThread" project="project2" 
+    file="/project2/EncryptedServer.java" binary="false" label="clientServerThread1" type="class" autoSize="true">    
+    <position height="0" width="0" x="0" y="0"/>    
+    <execution id="10">      
+      <position height="16" width="0" x="0" y="266"/>    
+    </execution>  
+  </object>  
+  <object id="12" language="java" name="EncryptedServer.ClientServerThread" project="project2" 
+    file="/project2/EncryptedServer.java" binary="false" label="clientServerThread" type="class" autoSize="true">    
+    <position height="-1" width="-1" x="104" y="0"/>    
+    <execution id="13">      
+      <position height="64" width="0" x="0" y="119"/>    
+    </execution>    
+    <execution id="15">      
+      <position height="16" width="0" x="0" y="151"/>    
+    </execution>  
+  </object>  
+  <object id="16" language="java" name="MyDecrypt" project="project2" file="/project2/MyDecrypt.java" binary="false" 
+    label="myDecrypt" type="class" autoSize="true">    
+    <position height="-1" width="-1" x="238" y="0"/>  
+  </object>  
+  <object id="17" language="java" name="MyEncrypt" project="project2" file="/project2/MyEncrypt.java" binary="false" 
+    label="myEncrypt" type="class" autoSize="true">    
+    <position height="-1" width="-1" x="314" y="0"/>  
+  </object>  
+  <object id="18" language="java" name="EncryptedClient" project="project2" file="/project2/EncryptedClient.java" 
+    binary="false" label="encryptedClient" type="class" autoSize="true">    
+    <position height="-1" width="-1" x="316" y="0"/>  
+  </object>  
+  <message id="3" operation="encryptString(java.lang.String,int[]):int[]" asynchronous="false">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="4"/>  
+  </message>  
+  <message id="6" operation="decryptintarr(int[],int[]):java.lang.String" asynchronous="false">    
+    <end type="SOURCE" refId="5"/>    
+    <end type="TARGET" refId="7"/>  
+  </message>  
+  <message id="9" operation="sendMessage(java.lang.Object):void" asynchronous="false">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="10"/>  
+  </message>  
+  <message id="14" operation="sendMessage(java.lang.Object):void" asynchronous="false">    
+    <end type="SOURCE" refId="13"/>    
+    <end type="TARGET" refId="15"/>  
+  </message>
+</sequence-diagram>
