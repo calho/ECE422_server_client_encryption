@@ -135,7 +135,6 @@ public class EncryptedClient {
 	    	    byte[] secretKey = new byte[16];
 	    	    System.arraycopy(keyAgreement.generateSecret(), 0, secretKey, 0, secretKey.length);
 	    	    
-	    	    //************************************************************************
 	    	    IntBuffer intBuf =
 	    	    		   ByteBuffer.wrap(secretKey)
 	    	    		     .order(ByteOrder.BIG_ENDIAN)
@@ -242,8 +241,16 @@ public class EncryptedClient {
 		    	    
 		    	    String fileContent = null;
 		    	    
-		    	    int[] fileContentint = (int[])in.readObject();
-	                fileContent = decryptintarr(fileContentint, k).trim();
+		    	    int[] fileFoundint = (int[])in.readObject();
+		    	    String fileFound = decryptintarr(fileFoundint, k).trim();
+		    	    if (fileFound.equals("found")) {
+			    	    int[] fileContentint = (int[])in.readObject();
+		                fileContent = decryptintarr(fileContentint, k).trim();
+
+		    	    }
+		    	    else {
+		    	    	fileContent = "file not found";
+		    	    }
 //	                System.out.println("recieved file content: " + fileContent);
 	                
 	                String keepSearching = "y";
@@ -310,7 +317,6 @@ public class EncryptedClient {
 		                        catch(IOException ioException){
 		                            ioException.printStackTrace();
 		                        }
-//			                	gettingFile =false;
 			                }
 			                else if (keepSearching.equals("y")) {
 			                	sendMessage(encryptString("again", k));
@@ -326,40 +332,13 @@ public class EncryptedClient {
                 }
 		}
 	    	 			    
-//			    String message = null;
-//			    
-//			    sendMessage("Connection successful");
-////                System.out.println("sent message");
-//                
-//
-//			    do{
-////                    System.out.println("sent message");
-//
-//	                try{
-////	                    System.out.println("sent message");
-//
-//	                    message = (String)in.readObject();
-//	                    System.out.println("server>" + message);
-//	                    sendMessage("Hi my server");
-//	                    message = "bye";
-//	                    sendMessage(message);
-//	                    System.out.println("sent message");
-//	                }
-//	                catch(ClassNotFoundException classNot){
-//	                    System.err.println("data received in unknown format");
-//	                }
-//	            }while(!message.equals("bye"));
-//			    
-//			    
-//			    
+
 		catch (IOException e) {
 		  	    System.out.println("Could not listen on port 16000");
 		  	    System.exit(-1);
-		  	  
-		        
+		  	        
 		}
         finally{
-            //4: Closing connection
             try{
                 in.close();
                 out.close();

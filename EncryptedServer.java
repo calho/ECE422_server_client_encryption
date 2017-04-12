@@ -130,9 +130,6 @@ public class EncryptedServer {
     	System.loadLibrary("encrypt");
     	System.loadLibrary("decrypt");
     	
-//    	String test = "Hello World!1234";
-
-//  	  try{
   		  
   		
   		String hashKeyString = "2fc14f685474c6ca";
@@ -225,7 +222,6 @@ public class EncryptedServer {
 		    	    try {
 		    	        hash[i] = Integer.parseInt(shadowHasharr[i]);
 		    	    } catch (NumberFormatException nfe) {
-		    	        //NOTE: write something here if you need to recover from formatting errors
 		    	    };
 		    	}
 		    	List<Object> Salt = new ArrayList<Object>();
@@ -248,146 +244,6 @@ public class EncryptedServer {
   	  
 	    new EncryptedServer();
 	    
-  		
-  		  
-  		 //***************************************************************************************************************** 
-//  	    serverSocket = new ServerSocket(16000); 
-//  	    System.out.println("waiting for client connection");
-//  	    clientSocket = serverSocket.accept();
-//  	    System.out.println("socket connected to a client");
-
-//  	    out = new ObjectOutputStream(clientSocket.getOutputStream());
-//	    in = new ObjectInputStream(clientSocket.getInputStream());
-	    
-//	    String finished = null;
-////	    while( !finished.equals("finished")) {}
-//	    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DH");
-//	    keyPairGenerator.initialize(512);
-//	    KeyPair keyPair = keyPairGenerator.generateKeyPair();
-//	    PrivateKey privateKey  = keyPair.getPrivate();
-//	    PublicKey publicKey = keyPair.getPublic();
-//	    
-//	    PublicKey clientPublickey = (PublicKey)in.readObject();
-////	    System.out.println("got public key: " + clientPublickey);
-////	    System.out.println("sending my public key: " + publicKey);
-//	    out.writeObject(publicKey);
-//        out.flush();
-//        
-//        KeyAgreement keyAgreement = KeyAgreement.getInstance("DH");
-//	    keyAgreement.init(privateKey);
-//	    keyAgreement.doPhase(clientPublickey, true);
-//	    byte[] secretKey = new byte[16];
-//	    System.arraycopy(keyAgreement.generateSecret(), 0, secretKey, 0, secretKey.length);
-//	    
-////	    System.out.println("key as a byte[]: " + secretKey + "with size: " + secretKey.length);
-//	    
-//	    intBuf =
-//	    		   ByteBuffer.wrap(secretKey)
-//	    		     .order(ByteOrder.BIG_ENDIAN)
-//	    		     .asIntBuffer();
-//	    		 int[] k = new int[intBuf.remaining()];
-//	    		 intBuf.get(k);
-//	        
-////	    System.out.println("key as int[]: " + Arrays.toString(k));
-//	    
-////	    System.out.println("v after it was encrypted: " + Arrays.toString(v));
-//	    
-////	    System.out.println("key as a byte[]: " + secretKey + "with size: " + secretKey.length);
-//	    
-//	    		 
-//	    boolean loggingin = true;
-//	    while (loggingin) {
-//	        int[] usernameint = (int[])in.readObject();
-//	        int[] passwordint = (int[])in.readObject();
-//	        
-//	        String username = decryptintarr(usernameint, k).trim();
-//	        String password = decryptintarr(passwordint, k).trim();
-//	        
-////		    System.out.println("username: " + username);
-////		    System.out.println("password: " + password);
-//	  	    
-//		    try {
-//			    List<Object> saltValues = shadowTable.get(username);
-////			    System.out.println("saltvalues: " + saltValues);
-//			    String salt = (String) saltValues.get(0);
-//			    int[] hashValue = (int[]) saltValues.get(1);
-//			    String hashedString = decryptintarr(hashValue, hashk);
-//			    String foundPassword = hashedString.replaceAll(Pattern.quote(salt), "").trim();
-//			    
-////			    System.out.println("is this your password? " + foundPassword);
-//			    
-//			    if(foundPassword.equals(password)) {
-//			    	int[] ack = encryptString("ACK", k);
-//			    	sendMessage(ack);
-//			    }
-//			    else {
-//			    	int[] error = encryptString("ERROR", k);
-//			    	sendMessage(error);
-//			    }
-//		    }catch (NullPointerException e) {
-//		    	int[] error = encryptString("ERROR", k);
-//		    	sendMessage(error);
-//		    }
-//		    
-//		    String loginResponse = decryptintarr((int[])in.readObject(), k).trim();
-////		    System.out.println("client login response " + loginResponse);
-//		    
-//		    if (loginResponse.equals("again")) {
-//		    	loggingin = true;
-//		    }
-//		    else if (loginResponse.equals("finished")){
-//		      try {
-//		    	in.close();
-//	              out.close();
-//	              serverSocket.close();
-//	          }
-//	          catch(IOException ioException){
-//	              ioException.printStackTrace();
-//	          }
-//		    	loggingin = false;
-//		    }
-//		    else if (loginResponse.equals("filename")){
-//		    	loggingin = false;
-//		    }
-//	    }
-//	    String readingFile = "continue";
-//	    while (!readingFile.equals("finished")) {
-//		    int[] filenameint = (int[])in.readObject();
-//		    String filename = decryptintarr(filenameint, k).trim();
-//		    
-////		    System.out.println("filename with decryption: " + filename);
-//		    
-//		    try {
-//			    File file = new File(filename);
-//			    byte[] fileContent = Files.readAllBytes(file.toPath());
-//			  	    
-//			    String fileContentString = new String(fileContent, "UTF-8");
-//			    
-//			    sendMessage(encryptString(fileContentString, k));
-//		    }
-//		    catch (Exception e) {
-//		    	System.out.println("error in finding file");
-//		    	sendMessage(encryptString("file not found", k));
-//		    }
-//		    readingFile = decryptintarr((int[])in.readObject(), k).trim();
-//	    }
-//  	  }
-//	    
-//	   catch (IOException e) {
-//	  	    System.out.println("Could not listen on port 16000");
-//	  	    System.exit(-1);
-//	  	  
-//  	  }finally{
-//	    //4: Closing connection
-//	    try{
-//	        in.close();
-//	        out.close();
-//	        serverSocket.close();
-//	    }
-//	    catch(IOException ioException){
-//	        ioException.printStackTrace();
-//	    }
-//  	  }
     }
 	      	    
     
@@ -432,7 +288,6 @@ public class EncryptedServer {
     				
     				
 	    			String finished = null;
-	//    		    while( !finished.equals("finished")) {}
 	    		    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DH");
 	    		    keyPairGenerator.initialize(512);
 	    		    KeyPair keyPair = keyPairGenerator.generateKeyPair();
@@ -481,10 +336,7 @@ public class EncryptedServer {
 	    			    try {
 //	    			    	System.out.println("searching for user " + username);
 	    				    List<Object> saltValues = shadowTable.get(username);
-//	    				    List<Object> testList = shadowTable.get(username);
-//	    				    System.out.println((String)testList.get(0));
-//	    				    System.out.println(Arrays.toString((int[])testList.get(1)));
-	//    				    System.out.println("saltvalues: " + saltValues);
+
 	    				    String salt = (String) saltValues.get(0);
 	    				    int[] hashValue = (int[]) saltValues.get(1);
 //	    				    System.out.println(Arrays.toString(hashValue));
@@ -503,7 +355,7 @@ public class EncryptedServer {
 	    				    	sendMessage(error);
 	    				    }
 	    			    }catch (NullPointerException e) {
-	    			    	System.out.println("nullpointer error");
+	    			    	System.out.println("user not found error");
 	    			    	int[] error = encryptString("ERROR", k);
 	    			    	sendMessage(error);
 	    			    }
@@ -515,16 +367,7 @@ public class EncryptedServer {
 	    			    	loggingin = true;
 	    			    }
 	    			    else if (loginResponse.equals("finished")){
-//	    			      try {
-//	    			    	in.close();
-//	    		              out.close();
-//	    		              clientServerSocket.close();
-//	    	    		      this.stop();
-//	
-//	    		          }
-//	    		          catch(IOException ioException){
-//	    		              ioException.printStackTrace();
-//	    		          }
+
 	    			    	threadRunning = false;
 	    			    }
 	    			    else if (loginResponse.equals("filename")){
@@ -543,7 +386,7 @@ public class EncryptedServer {
 	    				    byte[] fileContent = Files.readAllBytes(file.toPath());
 	    				  	    
 	    				    String fileContentString = new String(fileContent, "UTF-8");
-	    				    
+	    				    sendMessage(encryptString("found", k));
 	    				    sendMessage(encryptString(fileContentString, k));
 	    			    }
 	    			    catch (Exception e) {
@@ -572,7 +415,6 @@ public class EncryptedServer {
 				System.out.println("invalid key");
 				e1.printStackTrace();
 			}finally{
-    		    //4: Closing connection
     		    try{
     		        in.close();
     		        out.close();
