@@ -382,10 +382,10 @@ public class EncryptedServer {
 	//    			    System.out.println("filename with decryption: " + filename);
 	    			    
 	    			    try {
-	    				    File file = new File(filename);
-	    				    byte[] fileContent = Files.readAllBytes(file.toPath());
+	    				    File file = new File("./serverFiles/"+filename);
+	    				    byte[] fileContent = Files.readAllBytes(file.toPath().toAbsolutePath());
 	    				  	    
-	    				    String fileContentString = new String(fileContent, "UTF-8");
+	    				    String fileContentString = new String(fileContent);
 	    				    sendMessage(encryptString("found", k));
 	    				    sendMessage(encryptString(fileContentString, k));
 	    			    }

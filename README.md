@@ -15,7 +15,7 @@ if y
     $ Password: <password>
     then will be prompted to keep adding (y/n)
 else
-    server now just sits there nd waits for clients. Notifies if a client is trying to connect, and when a client disconnects
+    server now just sits there and waits for clients. Notifies if a client is trying to connect, and when a client disconnects
 
 for Client
 $ Username: <username>
